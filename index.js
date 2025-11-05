@@ -15,7 +15,7 @@ app.use('/api', appRoutes); // all your existing routes from app.js
 // Example: /api/auth, /api/events, etc.
 
 // --- Serve Angular Frontend ---
-app.use(express.static(path.join(__dirname, '../event-management/dist/browser/event-management')));
+app.use(express.static(path.join(__dirname, '../event-management/dist/event-management/browser/event-management')));
 
 // Fallback route: send index.html for any non-API route
 app.get('*', (req, res) => {
