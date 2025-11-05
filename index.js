@@ -1,26 +1,30 @@
-
 require('dotenv').config();
-const app = require('./app');
-
-const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, () => {
-  console.log(`✅ Server running at: http://localhost:${PORT}`);
-});
-
 const express = require('express');
+const path = require('path');
 const pool = require('./db');
+const appRoutes = require('./app'); // your existing API routes in app.js
 
 const app = express();
-app.use(express.json());
 
-// Test route
-app.get('/', (req, res) => {
-  res.send('Server is running!');
+// --- Core Middlewares ---
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// --- API Routes ---
+app.use('/api', appRoutes); // all your existing routes from app.js
+// Example: /api/auth, /api/events, etc.
+
+// --- Serve Angular Frontend ---
+app.use(express.static(path.join(__dirname, '../event-management/dist/event-management')));
+
+// Fallback route: send index.html for any non-API route
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../event-management/dist/event-management/index.html'));
 });
 
-// Get all users
-app.get('/users', async (req, res) => {
+// --- Test route (optional) ---
+// You can remove this if you want
+app.get('/test', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM users');
     res.json(result.rows);
@@ -30,7 +34,8 @@ app.get('/users', async (req, res) => {
   }
 });
 
-// Start server
-app.listen(5000, () => {
-  console.log('Server running on port 5000');
+// --- Start server ---
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`✅ Server running at: http://localhost:${PORT}`);
 });
